@@ -155,13 +155,6 @@ export class TTLCacheTest {
     Expect(Number.isNaN(cache.get('abc'))).toBe(true);
   }
 
-  // @Test()
-  // compareUndefined() {
-  //   const cache = new TTLCache();
-
-  //   Expect(() => cache.set('abc', undefined)).toThrow();
-  // }
-
   @Test()
   getValues() {
     const cache = new TTLCache();
