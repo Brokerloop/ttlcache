@@ -6,8 +6,13 @@
   "author": "Alex Soncodi <alex@brokerloop.com>",
   "license": "MIT",
   "keywords": [
-    "TTL",
+    "ttl",
     "cache",
+    "expire",
+    "expiry",
+    "expires",
+    "expiring",
+    "expiration",
     "nodejs",
     "browser",
     "typescript"
