@@ -11,5 +11,18 @@
     "nodejs",
     "browser",
     "typescript"
-  ]
+  ],
+  "scripts": {
+    "clean": "rm -rf ./build ./coverage ./.nyc_output",
+    "lint": "tslint -p tsconfig.json",
+    "test": "tsc && alsatian \"./build/test/**/*.test.js\"",
+    "coverage": "nyc --reporter=lcov npm run test && nyc report",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "package": "npm run clean && npm run build && ./package.sh"
+  },
+  "devDependencies": {
+    "alsatian": "~2.2.1",
+    "nyc": "~12.0.2"
+  }
 }

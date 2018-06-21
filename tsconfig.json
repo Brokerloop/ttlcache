@@ -1,6 +1,8 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "lib": ["es2015"],
     "target": "es5",
     "outDir": "build",
@@ -14,6 +16,7 @@
     "noUnusedParameters": true
   },
   "include": [
-    "src"
+    "src",
+    "test"
   ]
 }
