@@ -1,0 +1,15 @@
+{
+  "name": "@brokerloop/ttlcache",
+  "version": "0.0.1",
+  "description": "TTL cache for NodeJS and browsers.",
+  "private": true,
+  "author": "Alex Soncodi <alex@brokerloop.com>",
+  "license": "MIT",
+  "keywords": [
+    "TTL",
+    "cache",
+    "nodejs",
+    "browser",
+    "typescript"
+  ]
+}
