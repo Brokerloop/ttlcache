@@ -8,6 +8,7 @@ export interface Entry<T> {
 
 export class TTLCache<T = any> {
   private readonly cache = new Map<Key, Entry<T>>();
+  private readonly timers = new Map<Key, number>();
   private readonly ttl: number = 0;
 
   constructor(ttl = 1000) {
@@ -23,42 +24,46 @@ export class TTLCache<T = any> {
   }
 
   has(key: Key) {
-    const item = this.cache.get(key);
-
-    return !!item && !TTLCache.isExpired(item);
+    return !!this.cache.get(key);
   }
 
   get(key: Key) {
     const item = this.cache.get(key);
 
-    if (!item) {
-      return undefined;
-    }
-    else if (TTLCache.isExpired(item)) {
-      this.delete(key);
-
-      return undefined;
-    }
-    else {
-      return item.val;
-    }
+    return item && item.val;
   }
 
   set(key: Key, val: T) {
+    this.clearTimer(key);
+
     this.cache.set(key, { val, exp: Date.now() + this.ttl });
+
+    this.setTimer(key);
   }
 
   delete(key: Key) {
+    this.clearTimer(key);
+
     this.cache.delete(key);
   }
 
   clear() {
+    this.cache.forEach(k => this.clearTimer(k));
+
     this.cache.clear();
   }
 
-  private static isExpired<T>(item: Entry<T>) {
-    // key is valid during same ms
-    // NOTE: flaky async results with very small TTL
-    return item.exp < Date.now();
+  private setTimer(key: Key) {
+    const newTimer = setTimeout(() => this.delete(key), this.ttl);
+
+    this.timers.set(key, newTimer as any);
+  }
+
+  private clearTimer(key: Key) {
+    const timer = this.timers.get(key);
+
+    if (timer) {
+      clearTimeout(timer as any);
+    }
   }
 }
