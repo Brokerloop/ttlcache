@@ -45,7 +45,7 @@ cache.delete('a');
 }
 ```
 
-### Getters/Setters
+### Properties
 
 #### `size`
 Returns the size of the cache, including expired entries.

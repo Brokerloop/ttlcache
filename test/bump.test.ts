@@ -5,7 +5,7 @@ import { TTLCache } from '../src';
 export class BumpTests {
   @Test()
   getOldest() {
-    const cache = new TTLCache({ max: 3 });
+    const cache = new TTLCache();
 
     cache.set('a', 123);
     cache.set('b', 123);
@@ -20,7 +20,7 @@ export class BumpTests {
 
   @Test()
   getYoungest() {
-    const cache = new TTLCache({ max: 3 });
+    const cache = new TTLCache();
 
     cache.set('a', 123);
     cache.set('b', 123);
@@ -35,7 +35,7 @@ export class BumpTests {
 
   @Test()
   getMiddle() {
-    const cache = new TTLCache({ max: 3 });
+    const cache = new TTLCache();
 
     cache.set('a', 123);
     cache.set('b', 123);
@@ -50,7 +50,7 @@ export class BumpTests {
 
   @Test()
   setOldest() {
-    const cache = new TTLCache({ max: 3 });
+    const cache = new TTLCache();
 
     cache.set('a', 123);
     cache.set('b', 123);
@@ -65,7 +65,7 @@ export class BumpTests {
 
   @Test()
   setYoungest() {
-    const cache = new TTLCache({ max: 3 });
+    const cache = new TTLCache();
 
     cache.set('a', 123);
     cache.set('b', 123);
@@ -80,7 +80,7 @@ export class BumpTests {
 
   @Test()
   setMiddle() {
-    const cache = new TTLCache({ max: 3 });
+    const cache = new TTLCache();
 
     cache.set('a', 123);
     cache.set('b', 123);
