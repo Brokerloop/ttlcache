@@ -134,12 +134,10 @@ export class TTLCache<T = any> {
     const shrinkBy = this.max - max;
 
     if (shrinkBy > 0) {
-      this.cleanup();
+      let drop = shrinkBy - (this.max - this.cache.size);
 
-      let drop = shrinkBy - (this.max - this.size);
-
-      while (drop > 0 && this.oldest) {
-        this.evict(this.oldest);
+      while (drop > 0) {
+        this.evict(this.oldest!);
 
         drop--;
       }
