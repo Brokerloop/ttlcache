@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "alsatian": "~2.2.1",
-    "nyc": "~12.0.2"
+    "nyc": "~12.0.2",
+    "typescript": "~2.9.2"
   }
 }
