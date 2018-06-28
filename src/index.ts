@@ -62,6 +62,8 @@ export class TTLCache<T = any> {
         return undefined;
       }
       else {
+        this.bumpAge(entry);
+
         return entry.val;
       }
     }
@@ -77,10 +79,6 @@ export class TTLCache<T = any> {
       prev.val = val;
       prev.exp = Date.now() + this.ttl; // refresh
 
-      // reset insertion order
-      this.cache.delete(key);
-      this.cache.set(key, prev);
-
       this.bumpAge(prev);
     }
     else {
@@ -95,8 +93,6 @@ export class TTLCache<T = any> {
         prev: null,
         next: null
       };
-
-      this.cache.set(key, entry);
 
       this.bumpAge(entry);
     }
@@ -162,6 +158,10 @@ export class TTLCache<T = any> {
   }
 
   private bumpAge(entry: Entry<T>) {
+    // reset insertion order
+    this.cache.delete(entry.key); // maybe noop
+    this.cache.set(entry.key, entry);
+
     if (entry === this.youngest) {
       // already youngest or only entry
       return;
