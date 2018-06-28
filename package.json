@@ -1,6 +1,6 @@
 {
   "name": "@brokerloop/ttlcache",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "TTL cache for NodeJS and browsers.",
   "private": true,
   "author": "Alex Soncodi <alex@brokerloop.com>",
@@ -25,7 +25,8 @@
     "coverage": "nyc --reporter=lcov npm run test && nyc report",
     "build": "tsc",
     "watch": "tsc --watch",
-    "package": "npm run clean && npm run build && ./package.sh"
+    "package": "npm run clean && npm run build && ./package.sh",
+    "publish": "cd build/package && npm publish --access=public"
   },
   "devDependencies": {
     "alsatian": "~2.2.1",
