@@ -59,6 +59,8 @@ export class EvictTests {
     // set second key
     cache.set('b', 123);
 
+    cache.cleanup();
+
     Expect(cache.size).toEqual(2);
     Expect(cache.keys).toEqual(['a', 'b']);
 
@@ -83,5 +85,35 @@ export class EvictTests {
 
     Expect(cache.size).toEqual(0);
     Expect(cache.keys).toEqual([]);
+  }
+
+  @Test()
+  evictResize() {
+    const cache = new TTLCache({ max: 4 });
+
+    cache.set('a', 123);
+    cache.set('b', 123);
+    cache.set('c', 123);
+    cache.set('d', 123);
+
+    Expect(cache.keys).toEqual(['a', 'b', 'c', 'd']);
+
+    Expect(() => cache.resize(0)).toThrow();
+
+    cache.resize(5); // grow
+
+    Expect(cache.keys).toEqual(['a', 'b', 'c', 'd']);
+
+    cache.resize(3); // shrink by 2, drop 1
+
+    Expect(cache.keys).toEqual(['b', 'c', 'd']);
+
+    cache.resize(2); // shrink by 1, drop 1
+
+    Expect(cache.keys).toEqual(['c', 'd']);
+
+    cache.resize(5); // grow
+
+    Expect(cache.keys).toEqual(['c', 'd']);
   }
 }

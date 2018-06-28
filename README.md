@@ -70,6 +70,9 @@ Attempts to remove an entry at `key`. Returns `true` if an entry was found and r
 #### `cleanup(): void`
 Evicts all expired entries in the cache.
 
+#### `resize(max: number): void`
+Resizes the cache to the given `max` size. When growing, no entries are evicted. When shrinking, entries are evicted as needed, by oldest LRU-age, until the new `max` is reached.
+
 #### `clear(): void`
 Clears the cache, removing all entries.
 

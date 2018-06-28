@@ -19,9 +19,9 @@ export type Opts = typeof def;
 export class TTLCache<T = any> {
   private oldest: Entry<T>|null = null;
   private youngest: Entry<T>|null = null;
+  private max: number;
   private readonly cache = new Map<Key, Entry<T>>(); // preserves insert order
   private readonly ttl: number;
-  private readonly max: number;
 
   constructor(opt?: Partial<Opts>) {
     const { ttl, max } = TTLCache.makeOpt(def, opt);
@@ -115,11 +115,37 @@ export class TTLCache<T = any> {
   }
 
   cleanup() {
-    this.cache.forEach(e => {
-      if (TTLCache.isExpired(e)) {
-        this.evict(e);
+    while (this.oldest) {
+      if (TTLCache.isExpired(this.oldest)) {
+        this.evict(this.oldest);
       }
-    });
+      else {
+        // remaining entries are newer
+        break;
+      }
+    }
+  }
+
+  resize(max: number) {
+    if (!(max > 1)) {
+      throw new Error(`invalid max (${max})`);
+    }
+
+    const shrinkBy = this.max - max;
+
+    if (shrinkBy > 0) {
+      this.cleanup();
+
+      let drop = shrinkBy - (this.max - this.size);
+
+      while (drop > 0 && this.oldest) {
+        this.evict(this.oldest);
+
+        drop--;
+      }
+    }
+
+    this.max = max;
   }
 
   clear() {
@@ -170,22 +196,18 @@ export class TTLCache<T = any> {
     }
     else {
       if (entry.prev) {
+        entry.prev.next = entry.next; // maybe null
+
         if (entry === this.youngest) {
-          entry.prev.next = null;
           this.youngest = entry.prev;
-        }
-        else {
-          entry.prev.next = entry.next;
         }
       }
 
       if (entry.next) {
+        entry.next.prev = entry.prev; // maybe null
+
         if (entry === this.oldest) {
-          entry.next.prev = null;
           this.oldest = entry.next;
-        }
-        else {
-          entry.next.prev = entry.prev;
         }
       }
     }
