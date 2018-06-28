@@ -1,10 +1,10 @@
 # @brokerloop/ttlcache
 
-## **LRU TTL cache for Node.js and browsers**
+**LRU TTL cache for Node.js and browsers**
 
-> A cache with a configurable number of expiring entries.
-> Reading an expired entry removes it from the cache.
-> When the cache is full, Least-Recently-Used entries are evicted first.
+- A cache with a configurable number of expiring entries.
+- Reading an expired entry removes it from the cache.
+- When the cache is full, [Least-Recently-Used](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) entries are evicted first.
 
 ### Installation
 
@@ -40,3 +40,7 @@ cache.clear();
   max: Infinity // max number of entries in cache
 }
 ```
+
+### License
+
+[LICENSE](./LICENSE)
