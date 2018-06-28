@@ -13,7 +13,9 @@
 
 ### Installation
 
-`npm install @brokerloop/ttlcache --save`
+```sh
+npm install @brokerloop/ttlcache --save
+```
 
 ### Usage
 
@@ -45,6 +47,37 @@ cache.clear();
   max: Infinity // max number of entries in cache
 }
 ```
+
+### Getters/Setters
+
+#### `size`
+Returns the size of the cache, including expired entries.
+
+#### `keys`
+Returns an array of cache keys, ordered by oldest first, including expired entries.
+
+### Methods
+
+#### `get(key: string|object): any`
+Finds an entry by the given `key`. Returns `undefined` if not found or if the entry is expired. Expired entries are evicted from the cache.
+
+#### `set(key: string|object, val: any): void`
+Creates an entry at `key` with the given value, evicting the LRU entry if the cache is full. Refreshes the LRU-age of the inserted entry, even if one already exists at `key` and has expired.
+
+#### `has(key: string|object): boolean`
+Checks whether the cache contains an entry at the given `key`. Does not evict expired entries.
+
+#### `cleanup(): void`
+Evicts all expired entries in the cache.
+
+#### `delete(key: string|object): boolean`
+Attempts to remove an entry at `key`. Returns `true` if an entry was found and removed.
+
+#### `clear(): void`
+Clears the cache, removing all entries.
+
+#### `debug(): string`
+Creates a string representation e.g. `"[a:1] -> [b:2] -> [c:3]"` of the cache entries, for testing purposes.
 
 ### License
 
