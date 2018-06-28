@@ -2,7 +2,7 @@
 export type Key = string|object;
 
 interface Entry<T> {
-  readonly key: Key;   // handle to own key
+  readonly key: Key;   // handle to entry's own key
   val:  T;             // user-supplied cached value
   exp:  number;        // timestamp at which entry expires, in ms
   prev: Entry<T>|null;
@@ -10,35 +10,21 @@ interface Entry<T> {
 }
 
 const def = {
-  ttl: 1000,    // entry TTL in ms
+  ttl: 1000,    // default entry TTL in ms
   max: Infinity // max number of entries in cache
 };
 
 export type Opts = typeof def;
 
-const makeOpt = <T>(defs: T, opts = {}): T => {
-  const merged = { ...defs as any };
-
-  for (const key in opts) {
-    const val = (opts as any)[key];
-
-    if (val !== undefined) {
-      merged[key] = val;
-    }
-  }
-
-  return merged;
-};
-
 export class TTLCache<T = any> {
   private oldest: Entry<T>|null = null;
   private youngest: Entry<T>|null = null;
-  private readonly cache = new Map<Key, Entry<T>>();
+  private readonly cache = new Map<Key, Entry<T>>(); // preserves insert order
   private readonly ttl: number;
   private readonly max: number;
 
   constructor(opt?: Partial<Opts>) {
-    const { ttl, max } = makeOpt(def, opt);
+    const { ttl, max } = TTLCache.makeOpt(def, opt);
 
     if (ttl !== 0 && !(ttl > 0)) {
       throw new Error(`invalid TTL (${ttl})`);
@@ -52,11 +38,12 @@ export class TTLCache<T = any> {
   }
 
   get size() {
+    // includes expired entries
     return this.cache.size;
   }
 
   get keys() {
-    // cache Map preserves order
+    // includes expired keys
     return Array.from(this.cache.keys());
   }
 
@@ -112,6 +99,14 @@ export class TTLCache<T = any> {
 
       this.bumpAge(entry);
     }
+  }
+
+  cleanup() {
+    this.cache.forEach(e => {
+      if (TTLCache.isExpired(e)) {
+        this.evict(e);
+      }
+    });
   }
 
   delete(key: Key) {
@@ -201,5 +196,19 @@ export class TTLCache<T = any> {
     // entry is valid during same ms
     // NOTE: flaky async results with very small TTL
     return entry.exp < Date.now();
+  }
+
+  private static makeOpt<T>(defs: T, opts = {}): T {
+    const merged = { ...defs as any };
+
+    for (const key in opts) {
+      const val = (opts as any)[key];
+
+      if (val !== undefined) {
+        merged[key] = val;
+      }
+    }
+
+    return merged;
   }
 }
