@@ -136,9 +136,9 @@ export class GetSetTests {
 
     cache.set('a', 123);
 
-    Expect(cache.delete('a')).toBe(123);
+    Expect(cache.delete('a')).toBe(true);
 
-    Expect(cache.delete('a')).toBe(null);
+    Expect(cache.delete('a')).toBe(false);
   }
 
   @Test()

@@ -38,16 +38,17 @@ export class TTLCache<T = any> {
   }
 
   get size() {
-    // includes expired entries
+    // includes expired
     return this.cache.size;
   }
 
   get keys() {
-    // includes expired keys
+    // includes expired
     return Array.from(this.cache.keys());
   }
 
   has(key: Key) {
+    // includes expired
     return this.cache.has(key);
   }
 
@@ -115,10 +116,10 @@ export class TTLCache<T = any> {
     if (entry) {
       this.evict(entry);
 
-      return entry.val;
+      return true;
     }
 
-    return null;
+    return false;
   }
 
   clear() {
