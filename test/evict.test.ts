@@ -59,24 +59,29 @@ export class EvictTests {
     // set second key
     cache.set('b', 123);
 
+    Expect(cache.size).toEqual(2);
     Expect(cache.keys).toEqual(['a', 'b']);
 
     // expire first key
     await new Promise(resolve => setTimeout(resolve, 75));
 
+    Expect(cache.size).toEqual(2);
     Expect(cache.keys).toEqual(['a', 'b']);
 
     cache.cleanup();
 
+    Expect(cache.size).toEqual(1);
     Expect(cache.keys).toEqual(['b']);
 
     // expire second key
     await new Promise(resolve => setTimeout(resolve, 50));
 
+    Expect(cache.size).toEqual(1);
     Expect(cache.keys).toEqual(['b']);
 
     cache.cleanup();
 
+    Expect(cache.size).toEqual(0);
     Expect(cache.keys).toEqual([]);
   }
 }
