@@ -102,14 +102,6 @@ export class TTLCache<T = any> {
     }
   }
 
-  cleanup() {
-    this.cache.forEach(e => {
-      if (TTLCache.isExpired(e)) {
-        this.evict(e);
-      }
-    });
-  }
-
   delete(key: Key) {
     const entry = this.cache.get(key);
 
@@ -120,6 +112,14 @@ export class TTLCache<T = any> {
     }
 
     return false;
+  }
+
+  cleanup() {
+    this.cache.forEach(e => {
+      if (TTLCache.isExpired(e)) {
+        this.evict(e);
+      }
+    });
   }
 
   clear() {

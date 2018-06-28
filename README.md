@@ -34,12 +34,9 @@ cache.set('b', 456);
 cache.get('a');      // 123
 cache.get('c');      // undefined
 cache.delete('a');
-cache.size;          // 1
-cache.keys();        // ['b']
-cache.clear();
 ```
 
-### Options
+### Default Options
 
 ```js
 {
@@ -67,11 +64,11 @@ Creates an entry at `key` with the given value, evicting the LRU entry if the ca
 #### `has(key: string|object): boolean`
 Checks whether the cache contains an entry at the given `key`. Does not evict expired entries.
 
-#### `cleanup(): void`
-Evicts all expired entries in the cache.
-
 #### `delete(key: string|object): boolean`
 Attempts to remove an entry at `key`. Returns `true` if an entry was found and removed.
+
+#### `cleanup(): void`
+Evicts all expired entries in the cache.
 
 #### `clear(): void`
 Clears the cache, removing all entries.
