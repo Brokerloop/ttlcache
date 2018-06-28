@@ -6,6 +6,7 @@
   "author": "Alex Soncodi <alex@brokerloop.com>",
   "license": "MIT",
   "keywords": [
+    "lru",
     "ttl",
     "cache",
     "expire",
