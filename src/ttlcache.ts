@@ -55,6 +55,11 @@ export class TTLCache<T = any> {
     return this.cache.size;
   }
 
+  get keys() {
+    // cache Map preserves order
+    return Array.from(this.cache.keys());
+  }
+
   has(key: Key) {
     return this.cache.has(key);
   }
@@ -128,9 +133,12 @@ export class TTLCache<T = any> {
     this.youngest = null;
   }
 
-  get keys() {
-    // cache Map preserves order
-    return Array.from(this.cache.keys());
+  debug() {
+    const entries: string[] = [];
+
+    this.cache.forEach(e => entries.push(`[${e.key}:${e.val}]`));
+
+    return entries.join(' -> ');
   }
 
   private bumpAge(entry: Entry<T>) {
@@ -193,13 +201,5 @@ export class TTLCache<T = any> {
     // entry is valid during same ms
     // NOTE: flaky async results with very small TTL
     return entry.exp < Date.now();
-  }
-
-  debug() {
-    const entries: string[] = [];
-
-    this.cache.forEach(e => entries.push(`[${e.key}:${e.val}]`));
-
-    return entries.join(' -> ');
   }
 }
