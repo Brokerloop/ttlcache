@@ -1,5 +1,5 @@
 import { TestFixture, Test, Expect } from 'alsatian';
-import { TTLCache } from '../src/ttlcache';
+import { TTLCache } from '../src';
 
 @TestFixture()
 export class BumpTests {

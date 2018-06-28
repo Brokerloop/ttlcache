@@ -1,5 +1,5 @@
 import { TestFixture, Test, TestCase, Expect } from 'alsatian';
-import { TTLCache } from '../src/ttlcache';
+import { TTLCache } from '../src';
 
 type TTL = number|undefined;
 type MAX = number|undefined;
