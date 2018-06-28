@@ -18,6 +18,14 @@
     "browser",
     "typescript"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Brokerloop/ttlcache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Brokerloop/ttlcache/issues"
+  },
+  "homepage": "https://github.com/Brokerloop/ttlcache#readme",
   "scripts": {
     "clean": "rm -rf ./build ./coverage ./.nyc_output",
     "lint": "tslint -p tsconfig.json",
