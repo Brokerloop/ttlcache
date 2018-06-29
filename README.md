@@ -19,20 +19,26 @@ npm install @brokerloop/ttlcache --save
 
 ### Usage
 
-```js
+##### TypeScript
+```ts
 import { TTLCache } from '@brokerloop/ttlcache';
-// or
-const { TTLCache } = require('@brokerloop/ttlcache');
 
-const cache = new TTLCache({
-  ttl: 5000,
-  max: 10
-});
+const cache = new TTLCache<string, number>({ ttl: 5000, max: 10 });
 
 cache.set('a', 123);
-cache.set('b', 456);
 cache.get('a');      // 123
-cache.get('c');      // undefined
+cache.get('b');      // undefined
+cache.delete('a');
+```
+##### JavaScript
+```js
+const { TTLCache } = require('@brokerloop/ttlcache');
+
+const cache = new TTLCache({ ttl: 5000, max: 10 });
+
+cache.set('a', 123);
+cache.get('a');      // 123
+cache.get('b');      // undefined
 cache.delete('a');
 ```
 
@@ -48,24 +54,27 @@ cache.delete('a');
 ### Properties
 
 #### `size`
-Returns the size of the cache, including expired entries.
-
-#### `keys`
-Returns an array of cache keys, ordered by oldest first, including expired entries.
+Returns the size of the cache, including expired entries. Run `cleanup()` first to obtain valid cache size.
 
 ### Methods
 
-#### `get(key: string|object): any`
-Finds an entry by the given `key`. Returns `undefined` if not found or if the entry is expired. Expired entries are evicted from the cache.
+#### `keys(): Iterator<K>`
+Returns an iterator over valid cache entry keys. Expired entries are evicted as they are iterated over.
 
-#### `set(key: string|object, val: any): void`
+#### `values(): Iterator<V>`
+Returns an iterator over valid cache entry values. Expired entries are evicted as they are iterated over.
+
+#### `entries(): Iterator<Entry<K, V>>`
+Returns an iterator over valid cache entries. Expired entries are evicted as they are iterated over.
+
+#### `get(key: K): V|undefined`
+Finds an entry by the given `key`. Returns `undefined` if not found or if the entry is expired, also evicting it.
+
+#### `set(key: K, val: V): void`
 Creates an entry at `key` with the given value, evicting the LRU entry if the cache is full. Refreshes the LRU-age of the inserted entry, even if one already exists at `key` and has expired.
 
-#### `has(key: string|object): boolean`
-Checks whether the cache contains an entry at the given `key`. Does not evict expired entries.
-
-#### `delete(key: string|object): boolean`
-Attempts to remove an entry at `key`. Returns `true` if an entry was found and removed.
+#### `delete(key: K): boolean`
+Removes an entry at `key`. Returns `true` if an entry was found and removed.
 
 #### `cleanup(): void`
 Evicts all expired entries in the cache.
@@ -75,9 +84,6 @@ Resizes the cache to the given `max` size. When growing, no entries are evicted.
 
 #### `clear(): void`
 Clears the cache, removing all entries.
-
-#### `debug(): string`
-Creates a string representation e.g. `"[a:1] -> [b:2] -> [c:3]"` of the cache entries, for testing purposes.
 
 ### License
 

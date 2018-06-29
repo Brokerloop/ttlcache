@@ -7,6 +7,11 @@ interface Entry<K, V> {
   next: Entry<K, V>|null;
 }
 
+export interface EntryView<K, V> {
+  key: K;
+  val: V;
+}
+
 const def = {
   ttl: 1000,    // default entry TTL in ms
   max: Infinity // max number of entries in cache
@@ -40,14 +45,27 @@ export class TTLCache<K = any, V = any> {
     return this.cache.size;
   }
 
-  get keys() {
-    // includes expired
-    return Array.from(this.cache.keys());
+  *keys() {
+    for (const entry of this.getEvictingIterator()) {
+      yield entry.key;
+    }
   }
 
-  has(key: K) {
-    // includes expired
-    return this.cache.has(key);
+  *values() {
+    for (const entry of this.getEvictingIterator()) {
+      yield entry.val;
+    }
+  }
+
+  *entries() {
+    for (const entry of this.getEvictingIterator()) {
+      const view: EntryView<K, V> = {
+        key: entry.key,
+        val: entry.val
+      };
+
+      yield view;
+    }
   }
 
   get(key: K) {
@@ -147,14 +165,6 @@ export class TTLCache<K = any, V = any> {
     this.newest = null;
   }
 
-  debug() {
-    const entries: string[] = [];
-
-    this.cache.forEach(e => entries.push(`[${e.key}:${e.val}]`));
-
-    return entries.join(' -> ');
-  }
-
   private bumpAge(entry: Entry<K, V>) {
     // reset insertion order
     this.cache.delete(entry.key); // maybe noop
@@ -208,6 +218,17 @@ export class TTLCache<K = any, V = any> {
           this.oldest = entry.next;
         }
       }
+    }
+  }
+
+  private *getEvictingIterator() {
+    for (const entry of this.cache.values()) {
+      if (TTLCache.isExpired(entry)) {
+        this.evictEntry(entry);
+        continue;
+      }
+
+      yield entry;
     }
   }
 

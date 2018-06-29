@@ -140,38 +140,4 @@ export class GetSetTests {
 
     Expect(cache.delete('a')).toBe(false);
   }
-
-  @Test()
-  hasValue() {
-    const cache = new TTLCache();
-
-    cache.set('a', 123);
-
-    Expect(cache.has('a')).toBe(true);
-
-    cache.delete('a');
-
-    Expect(cache.has('a')).toBe(false);
-  }
-
-  @Test()
-  printString() {
-    const cache = new TTLCache();
-
-    cache.set('a', 123);
-
-    Expect(cache.debug()).toBe('[a:123]');
-
-    cache.set('b', 456);
-
-    Expect(cache.debug()).toBe('[a:123] -> [b:456]');
-
-    cache.delete('a');
-
-    Expect(cache.debug()).toBe('[b:456]');
-
-    cache.delete('b');
-
-    Expect(cache.debug()).toBe('');
-  }
 }
