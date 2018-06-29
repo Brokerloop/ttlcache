@@ -19,7 +19,7 @@ export class BumpTests {
   }
 
   @Test()
-  getYoungest() {
+  getNewest() {
     const cache = new TTLCache();
 
     cache.set('a', 123);
@@ -64,7 +64,7 @@ export class BumpTests {
   }
 
   @Test()
-  setYoungest() {
+  setNewest() {
     const cache = new TTLCache();
 
     cache.set('a', 123);

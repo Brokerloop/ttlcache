@@ -18,7 +18,7 @@ export class EvictTests {
   }
 
   @Test()
-  evictYoungestEntry() {
+  evictNewestEntry() {
     const cache = new TTLCache({ max: 3 });
 
     cache.set('a', 123);

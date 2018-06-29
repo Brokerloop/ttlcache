@@ -1,12 +1,10 @@
 
-export type Key = string|object;
-
-interface Entry<T> {
-  readonly key: Key;   // handle to entry's own key
-  val:  T;             // user-supplied cached value
-  exp:  number;        // timestamp at which entry expires, in ms
-  prev: Entry<T>|null;
-  next: Entry<T>|null;
+interface Entry<K, V> {
+  readonly key: K;        // handle to entry's own key
+  val:  V;                // user-supplied cached value
+  exp:  number;           // timestamp at which entry expires, in ms
+  prev: Entry<K, V>|null;
+  next: Entry<K, V>|null;
 }
 
 const def = {
@@ -16,11 +14,11 @@ const def = {
 
 export type Opts = typeof def;
 
-export class TTLCache<T = any> {
-  private oldest: Entry<T>|null = null;
-  private youngest: Entry<T>|null = null;
+export class TTLCache<K = any, V = any> {
+  private oldest: Entry<K, V>|null = null;
+  private newest: Entry<K, V>|null = null;
   private max: number;
-  private readonly cache = new Map<Key, Entry<T>>(); // preserves insert order
+  private readonly cache = new Map<K, Entry<K, V>>(); // preserves insert order
   private readonly ttl: number;
 
   constructor(opt?: Partial<Opts>) {
@@ -47,17 +45,17 @@ export class TTLCache<T = any> {
     return Array.from(this.cache.keys());
   }
 
-  has(key: Key) {
+  has(key: K) {
     // includes expired
     return this.cache.has(key);
   }
 
-  get(key: Key) {
+  get(key: K) {
     const entry = this.cache.get(key);
 
     if (entry) {
       if (TTLCache.isExpired(entry)) {
-        this.evict(entry);
+        this.evictEntry(entry);
 
         return undefined;
       }
@@ -72,7 +70,7 @@ export class TTLCache<T = any> {
     }
   }
 
-  set(key: Key, val: T) {
+  set(key: K, val: V) {
     const prev = this.cache.get(key);
 
     if (prev) {
@@ -83,10 +81,10 @@ export class TTLCache<T = any> {
     }
     else {
       if (this.cache.size === this.max) {
-        this.evict(this.oldest!);
+        this.evictEntry(this.oldest!);
       }
 
-      const entry: Entry<T> = {
+      const entry: Entry<K, V> = {
         key,
         val,
         exp:  Date.now() + this.ttl,
@@ -98,11 +96,11 @@ export class TTLCache<T = any> {
     }
   }
 
-  delete(key: Key) {
+  delete(key: K) {
     const entry = this.cache.get(key);
 
     if (entry) {
-      this.evict(entry);
+      this.evictEntry(entry);
 
       return true;
     }
@@ -113,7 +111,7 @@ export class TTLCache<T = any> {
   cleanup() {
     while (this.oldest) {
       if (TTLCache.isExpired(this.oldest)) {
-        this.evict(this.oldest);
+        this.evictEntry(this.oldest);
       }
       else {
         // remaining entries are newer
@@ -133,7 +131,7 @@ export class TTLCache<T = any> {
       let drop = shrinkBy - (this.max - this.cache.size);
 
       while (drop > 0) {
-        this.evict(this.oldest!);
+        this.evictEntry(this.oldest!);
 
         drop--;
       }
@@ -146,7 +144,7 @@ export class TTLCache<T = any> {
     this.cache.clear();
 
     this.oldest = null;
-    this.youngest = null;
+    this.newest = null;
   }
 
   debug() {
@@ -157,19 +155,19 @@ export class TTLCache<T = any> {
     return entries.join(' -> ');
   }
 
-  private bumpAge(entry: Entry<T>) {
+  private bumpAge(entry: Entry<K, V>) {
     // reset insertion order
     this.cache.delete(entry.key); // maybe noop
     this.cache.set(entry.key, entry);
 
-    if (entry === this.youngest) {
-      // already youngest or only entry
+    if (entry === this.newest) {
+      // already newest or only entry
       return;
     }
-    else if (!this.oldest || !this.youngest) {
+    else if (!this.oldest || !this.newest) {
       // set only entry
       this.oldest = entry;
-      this.youngest = entry;
+      this.newest = entry;
     }
     else {
       if (entry === this.oldest) {
@@ -178,26 +176,28 @@ export class TTLCache<T = any> {
         this.oldest = entry.next;
       }
 
-      entry.prev = this.youngest;
+      entry.prev = this.newest;
       entry.next = null;
 
-      this.youngest.next = entry;
-      this.youngest = entry;
+      this.newest.next = entry;
+      this.newest = entry;
     }
   }
 
-  private evict(entry: Entry<T>) {
+  private evictEntry(entry: Entry<K, V>) {
+    this.cache.delete(entry.key);
+
     if (!entry.prev && !entry.next) {
       // only entry
       this.oldest = null;
-      this.youngest = null;
+      this.newest = null;
     }
     else {
       if (entry.prev) {
         entry.prev.next = entry.next; // maybe null
 
-        if (entry === this.youngest) {
-          this.youngest = entry.prev;
+        if (entry === this.newest) {
+          this.newest = entry.prev;
         }
       }
 
@@ -209,11 +209,9 @@ export class TTLCache<T = any> {
         }
       }
     }
-
-    this.cache.delete(entry.key);
   }
 
-  private static isExpired<T>(entry: Entry<T>) {
+  private static isExpired<K, V>(entry: Entry<K, V>) {
     // entry is valid during same ms
     // NOTE: flaky async results with very small TTL
     return entry.exp < Date.now();
