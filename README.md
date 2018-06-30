@@ -5,7 +5,7 @@
 [![Dependency Status](https://david-dm.org/Brokerloop/ttlcache/status.svg)](https://david-dm.org/Brokerloop/ttlcache)
 [![npm version](https://badge.fury.io/js/%40brokerloop%2Fttlcache.svg)](https://badge.fury.io/js/%40brokerloop%2Fttlcache)
 
-**LRU TTL cache for Node.js and browsers**
+**Evented LRU TTL cache for Node.js and browsers**
 
 - A cache with a configurable number of expiring entries.
 - Reading an expired entry removes it from the cache.
@@ -84,6 +84,17 @@ Resizes the cache to the given `max` size. When growing, no entries are evicted.
 
 #### `clear(): void`
 Clears the cache, removing all entries.
+
+### Events (via [Signals](https://github.com/soncodi/signal))
+
+#### `empty`
+Signal fired after cache becomes empty.
+
+#### `full`
+Signal fired after cache becomes full.
+
+#### `evict`
+Signal fired after a cache entry is evicted. The evicted entry `{ key: K, val: V }` is passed as an argument.
 
 ### License
 

@@ -1,11 +1,12 @@
 {
   "name": "@brokerloop/ttlcache",
   "version": "1.0.0",
-  "description": "LRU TTL cache for NodeJS and browsers.",
+  "description": "Evented LRU TTL cache for NodeJS and browsers.",
   "private": true,
   "author": "Alex Soncodi <alex@brokerloop.com>",
   "license": "MIT",
   "keywords": [
+    "evented",
     "lru",
     "ttl",
     "cache",
@@ -35,6 +36,9 @@
     "watch": "tsc --watch",
     "package": "npm run clean && npm run build && ./package.sh",
     "push": "cd ./build/package && npm publish --access=public"
+  },
+  "dependencies": {
+    "@soncodi/signal": "~1.0.2"
   },
   "devDependencies": {
     "alsatian": "~2.2.1",

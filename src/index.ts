@@ -1,3 +1,4 @@
+import { Signal } from '@soncodi/signal';
 
 interface Entry<K, V> {
   readonly key: K;        // handle to entry's own key
@@ -20,6 +21,10 @@ const def = {
 export type Opts = typeof def;
 
 export class TTLCache<K = any, V = any> {
+  readonly empty = new Signal();
+  readonly full  = new Signal();
+  readonly evict = new Signal<EntryView<K, V>>();
+
   private oldest: Entry<K, V>|null = null;
   private newest: Entry<K, V>|null = null;
   private max: number;
@@ -111,6 +116,10 @@ export class TTLCache<K = any, V = any> {
       };
 
       this.bumpAge(entry);
+
+      if (this.cache.size === this.max) {
+        this.full.emit();
+      }
     }
   }
 
@@ -197,10 +206,14 @@ export class TTLCache<K = any, V = any> {
   private evictEntry(entry: Entry<K, V>) {
     this.cache.delete(entry.key);
 
+    this.evict.emit({ key: entry.key, val: entry.val });
+
     if (!entry.prev && !entry.next) {
       // only entry
       this.oldest = null;
       this.newest = null;
+
+      this.empty.emit();
     }
     else {
       if (entry.prev) {
