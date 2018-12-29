@@ -17,24 +17,12 @@
 npm install @brokerloop/ttlcache --save
 ```
 
-### Usage
+### Usage (TypeScript)
 
-##### TypeScript
 ```ts
 import { TTLCache } from '@brokerloop/ttlcache';
 
 const cache = new TTLCache<string, number>({ ttl: 5000, max: 10 });
-
-cache.set('a', 123);
-cache.get('a');      // 123
-cache.get('b');      // undefined
-cache.delete('a');
-```
-##### JavaScript
-```js
-const { TTLCache } = require('@brokerloop/ttlcache');
-
-const cache = new TTLCache({ ttl: 5000, max: 10 });
 
 cache.set('a', 123);
 cache.get('a');      // 123
