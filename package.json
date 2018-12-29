@@ -38,11 +38,11 @@
     "push": "cd ./build/package && npm publish --access=public"
   },
   "dependencies": {
-    "@soncodi/signal": "~1.0.3"
+    "@soncodi/signal": "~2.0.0"
   },
   "devDependencies": {
-    "alsatian": "~2.2.1",
-    "nyc": "~12.0.2",
-    "typescript": "~2.9.2"
+    "alsatian": "~2.3.0",
+    "nyc": "~13.1.0",
+    "typescript": "~3.2.2"
   }
 }
