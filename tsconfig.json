@@ -8,7 +8,7 @@
     "outDir": "build",
     "module": "commonjs",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
     "strict": true,
     "noImplicitReturns": true,
