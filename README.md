@@ -28,6 +28,18 @@ cache.set('a', 123);
 cache.get('a');      // 123
 cache.get('b');      // undefined
 cache.delete('a');
+
+cache.empty.on(() => {
+  // cache is empty
+});
+
+cache.full.on(() => {
+  // cache is full
+});
+
+cache.evict.on(({ key, val }) => {
+  // entry evicted
+});
 ```
 
 ### Default Options
