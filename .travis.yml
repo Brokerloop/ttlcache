@@ -1,11 +1,8 @@
 
-dist: trusty
-sudo: false
+dist: xenial
 
 language: node_js
 node_js:
   - 'node'
-  - 8
-cache:
-  directories:
-    - node_modules
+  - 'lts/*'
+cache: npm
