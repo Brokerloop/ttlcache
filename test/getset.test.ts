@@ -1,4 +1,4 @@
-import { TestFixture, Test, AsyncTest, TestCase, Expect } from 'alsatian';
+import { TestFixture, Test, TestCase, Expect } from 'alsatian';
 import { TTLCache } from '../src';
 
 type TTL = number|undefined;
@@ -16,7 +16,7 @@ export class GetSetTests {
     Expect(cache.get('a')).toBe(123);
   }
 
-  @AsyncTest()
+  @Test()
   @TestCase(50, 0)
   @TestCase(100, 50)
   async getValidEntry(ttl: TTL, waitms: number) {
@@ -29,7 +29,7 @@ export class GetSetTests {
     Expect(cache.get('a')).toBe(123);
   }
 
-  @AsyncTest()
+  @Test()
   @TestCase(0, 50)
   @TestCase(50, 100)
   async getExpiredEntry(ttl: TTL, waitms: number) {

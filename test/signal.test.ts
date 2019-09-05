@@ -50,7 +50,7 @@ export class SignalTests {
   evict() {
     const cache = new TTLCache({ max: 2 });
 
-    const spy = { onEvent() { /**/ } };
+    const spy = { onEvent(_: object) { /**/ } };
     SpyOn(spy, 'onEvent');
 
     cache.evict.on(spy.onEvent);

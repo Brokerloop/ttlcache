@@ -1,4 +1,4 @@
-import { TestFixture, Test, AsyncTest, Expect } from 'alsatian';
+import { TestFixture, Test, Expect } from 'alsatian';
 import { TTLCache } from '../src';
 
 @TestFixture()
@@ -47,7 +47,7 @@ export class EvictTests {
     Expect(Array.from(cache.keys())).toEqual(['a', 'c']);
   }
 
-  @AsyncTest()
+  @Test()
   async cleanupExpiredKeys() {
     const cache = new TTLCache({ ttl: 100 });
 
@@ -68,7 +68,6 @@ export class EvictTests {
     await new Promise(resolve => setTimeout(resolve, 75));
 
     Expect(cache.size).toEqual(2);
-    // Expect(Array.from(cache.keys())).toEqual(['b']);
 
     cache.cleanup();
 
