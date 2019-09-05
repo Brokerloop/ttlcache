@@ -7,7 +7,6 @@ type MAX = number|undefined;
 @TestFixture()
 export class SetupTests {
   @Test()
-  @TestCase(undefined)
   @TestCase(0)
   @TestCase(1)
   @TestCase(10)
@@ -34,7 +33,6 @@ export class SetupTests {
   }
 
   @Test()
-  @TestCase(undefined)
   @TestCase(5)
   @TestCase(10)
   @TestCase(Infinity)

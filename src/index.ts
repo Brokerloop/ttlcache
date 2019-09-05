@@ -32,7 +32,7 @@ export class TTLCache<K = any, V = any> {
   private readonly ttl: number;
 
   constructor(opt?: Partial<Opts>) {
-    const { ttl, max } = TTLCache.makeOpt(def, opt);
+    const { ttl, max } = { ...def, ...opt };
 
     if (ttl !== 0 && !(ttl > 0)) {
       throw new Error(`invalid TTL (${ttl})`);
@@ -107,15 +107,13 @@ export class TTLCache<K = any, V = any> {
         this.evictEntry(this.oldest!);
       }
 
-      const entry: Entry<K, V> = {
+      this.bumpAge({
         key,
         val,
         exp:  Date.now() + this.ttl,
         prev: null,
         next: null
-      };
-
-      this.bumpAge(entry);
+      });
 
       if (this.cache.size === this.max) {
         this.full.emit();
@@ -249,19 +247,5 @@ export class TTLCache<K = any, V = any> {
     // entry is valid during same ms
     // NOTE: flaky async results with very small TTL
     return entry.exp < Date.now();
-  }
-
-  private static makeOpt<T>(defs: T, opts = {}): T {
-    const merged = { ...defs as any };
-
-    for (const key in opts) {
-      const val = (opts as any)[key];
-
-      if (val !== undefined) {
-        merged[key] = val;
-      }
-    }
-
-    return merged;
   }
 }

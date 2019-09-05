@@ -2,7 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "lib": ["es2015"],
-    "target": "es6",
+    "target": "es2015",
     "outDir": "build",
     "module": "commonjs",
     "moduleResolution": "node",
