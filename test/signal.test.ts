@@ -61,7 +61,7 @@ export class SignalTests {
 
     Expect(spy.onEvent).toHaveBeenCalled().exactly(1);
     Expect(spy.onEvent).toHaveBeenCalledWith(
-      Any(Object).thatMatches({ key: 'a', val: 123 })
+      Any<object>(Object).thatMatches({ key: 'a', val: 123 })
     );
   }
 }
