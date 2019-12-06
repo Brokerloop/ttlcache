@@ -140,4 +140,19 @@ export class GetSetTests {
 
     Expect(cache.delete('a')).toBe(false);
   }
+
+  @Test()
+  hasEntry() {
+    const cache = new TTLCache();
+
+    Expect(cache.has('a')).toBe(false);
+
+    cache.set('a', 123);
+
+    Expect(cache.has('a')).toBe(true);
+
+    cache.delete('a');
+
+    Expect(cache.has('a')).toBe(false);
+  }
 }

@@ -73,6 +73,10 @@ export class TTLCache<K = any, V = any> {
     }
   }
 
+  has(key: K) {
+    return this.cache.has(key);
+  }
+
   get(key: K) {
     const entry = this.cache.get(key);
 
