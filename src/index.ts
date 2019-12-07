@@ -176,14 +176,14 @@ export class TTLCache<K = any, V = any> {
   private insertNew(entry: Entry<K, V>) {
     this.cache.set(entry.key, entry);
 
-    if (!this.oldest || !this.newest) {
-      this.oldest = entry;
-      this.newest = entry;
-    }
-    else {
+    if (this.newest) {
       entry.prev = this.newest;
 
       this.newest.next = entry;
+      this.newest = entry;
+    }
+    else {
+      this.oldest = entry;
       this.newest = entry;
     }
   }
@@ -215,20 +215,18 @@ export class TTLCache<K = any, V = any> {
   private evictEntry(entry: Entry<K, V>) {
     this.cache.delete(entry.key);
 
-    if (this.oldest === entry) {
-      this.oldest = entry.next; // maybe null
-    }
-
-    if (this.newest === entry) {
-      this.newest = entry.prev; // maybe null
-    }
-
     if (entry.prev) {
       entry.prev.next = entry.next; // maybe null
+    }
+    else {
+      this.oldest = entry.next;     // maybe null
     }
 
     if (entry.next) {
       entry.next.prev = entry.prev; // maybe null
+    }
+    else {
+      this.newest = entry.prev;     // maybe null
     }
 
     this.evict.emit({

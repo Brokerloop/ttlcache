@@ -25,6 +25,7 @@ import { TTLCache } from '@brokerloop/ttlcache';
 const cache = new TTLCache<string, number>({ ttl: 5000, max: 10 });
 
 cache.set('a', 123);
+cache.has('a');      // true
 cache.get('a');      // 123
 cache.get('b');      // undefined
 cache.delete('a');
@@ -59,13 +60,16 @@ Returns the size of the cache, including expired entries. Run `cleanup()` first 
 ### Methods
 
 #### `keys(): Iterator<K>`
-Returns an iterator over valid cache entry keys. Expired entries are evicted as they are iterated over.
+Returns an iterator over valid cache entry keys, from newest to oldest. Expired entries are evicted as they are iterated over.
 
 #### `values(): Iterator<V>`
-Returns an iterator over valid cache entry values. Expired entries are evicted as they are iterated over.
+Returns an iterator over valid cache entry values, from newest to oldest. Expired entries are evicted as they are iterated over.
 
 #### `entries(): Iterator<Entry<K, V>>`
-Returns an iterator over valid cache entries. Expired entries are evicted as they are iterated over.
+Returns an iterator over valid cache entries, from newest to oldest. Expired entries are evicted as they are iterated over.
+
+#### `has(key: K): boolean`
+Checks if `key` exists in the cache. Does not evict the entry if expired.
 
 #### `get(key: K): V|undefined`
 Finds an entry by the given `key`. Returns `undefined` if not found or if the entry is expired, also evicting it.
@@ -83,7 +87,7 @@ Evicts all expired entries in the cache.
 Resizes the cache to the given `max` size. When growing, no entries are evicted. When shrinking, entries are evicted as needed, by oldest LRU-age, until the new `max` is reached.
 
 #### `clear(): void`
-Clears the cache, removing all entries.
+Clears the cache, removing all entries, without firing signals.
 
 ### Events (via [Signals](https://github.com/soncodi/signal))
 
