@@ -84,7 +84,7 @@ export class TTLCache<K = any, V = any> {
       return undefined;
     }
     else if (TTLCache.isExpired(entry)) {
-      this.evictEntry(entry);
+      this.evictEntry(entry, true);
 
       return undefined;
     }
@@ -105,7 +105,7 @@ export class TTLCache<K = any, V = any> {
     }
     else {
       if (this.cache.size === this.max) {
-        this.evictEntry(this.oldest!);
+        this.evictEntry(this.oldest!, true);
       }
 
       this.insertNew({
@@ -126,18 +126,23 @@ export class TTLCache<K = any, V = any> {
     const entry = this.cache.get(key);
 
     if (entry) {
-      this.evictEntry(entry);
+      this.evictEntry(entry, false);
 
-      return true;
+      const view: EntryView<K, V> = {
+        key: entry.key,
+        val: entry.val
+      };
+
+      return view;
     }
 
-    return false;
+    return undefined;
   }
 
   cleanup() {
     while (this.oldest) {
       if (TTLCache.isExpired(this.oldest)) {
-        this.evictEntry(this.oldest);
+        this.evictEntry(this.oldest, true);
       }
       else {
         // remaining entries are newer
@@ -157,7 +162,7 @@ export class TTLCache<K = any, V = any> {
       let drop = shrinkBy - (this.max - this.cache.size);
 
       while (drop > 0) {
-        this.evictEntry(this.oldest!);
+        this.evictEntry(this.oldest!, true);
 
         drop--;
       }
@@ -212,7 +217,7 @@ export class TTLCache<K = any, V = any> {
     this.newest = entry;
   }
 
-  private evictEntry(entry: Entry<K, V>) {
+  private evictEntry(entry: Entry<K, V>, emit: boolean) {
     this.cache.delete(entry.key);
 
     if (entry.prev) {
@@ -229,10 +234,12 @@ export class TTLCache<K = any, V = any> {
       this.newest = entry.prev;     // maybe null
     }
 
-    this.evict.emit({
-      key: entry.key,
-      val: entry.val
-    });
+    if (emit) {
+      this.evict.emit({
+        key: entry.key,
+        val: entry.val
+      });
+    }
 
     if (this.cache.size === 0) {
       this.empty.emit();
@@ -244,7 +251,7 @@ export class TTLCache<K = any, V = any> {
 
     while (entry) {
       if (TTLCache.isExpired(entry)) {
-        this.evictEntry(entry);
+        this.evictEntry(entry, true);
 
         entry = entry.prev;
 

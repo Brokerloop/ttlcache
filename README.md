@@ -75,10 +75,10 @@ Checks if `key` exists in the cache. Does not evict the entry if expired.
 Finds an entry by the given `key`. Returns `undefined` if not found or if the entry is expired, also evicting it.
 
 #### `set(key: K, val: V): void`
-Creates an entry at `key` with the given value, evicting the LRU entry if the cache is full. Refreshes the LRU-age of the inserted entry, even if one already exists at `key` and has expired.
+Creates an entry at `key`, evicting the cache's LRU entry if the cache is full. If an expired entry already exists at `key`, its LRU-age is refreshed but it is not evicted.
 
-#### `delete(key: K): boolean`
-Removes an entry at `key`. Returns `true` if an entry was found and removed.
+#### `delete(key: K): { key: K, val: V }|undefined`
+Finds and removes an entry at `key`. Returns the entry `{ key: K, val: V }` if it was removed, or `undefined` otherwise.
 
 #### `cleanup(): void`
 Evicts all expired entries in the cache.
@@ -89,16 +89,16 @@ Resizes the cache to the given `max` size. When growing, no entries are evicted.
 #### `clear(): void`
 Clears the cache, removing all entries, without firing signals.
 
-### Events (via [Signals](https://github.com/soncodi/signal))
+### Events (via [Signal](https://github.com/soncodi/signal))
 
 #### `empty`
-Signal fired after cache becomes empty.
+Signal fired after cache becomes empty. Does not fire on `clear()`.
 
 #### `full`
 Signal fired after cache becomes full.
 
 #### `evict`
-Signal fired after a cache entry is evicted. The evicted entry `{ key: K, val: V }` is passed as an argument.
+Signal fired after a cache entry is evicted. The evicted entry `{ key: K, val: V }` is passed as an argument. Does not fire on `delete()` and `clear()`.
 
 ### License
 
