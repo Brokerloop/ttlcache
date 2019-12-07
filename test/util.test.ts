@@ -2,7 +2,7 @@ import { TestFixture, Test, Expect } from 'alsatian';
 import { TTLCache } from '../src';
 
 @TestFixture()
-export class BumpTests {
+export class UtilTests {
   @Test()
   async iterateValidEntries() {
     const cache = new TTLCache({ ttl: 50 });
@@ -20,7 +20,7 @@ export class BumpTests {
       keys.push(key);
     }
 
-    Expect(keys).toEqual(['b', 'c']);
+    Expect(keys).toEqual(['c', 'b']);
   }
 
   @Test()
@@ -40,7 +40,7 @@ export class BumpTests {
       keys.push(key);
     }
 
-    Expect(keys).toEqual(['b', 'c']);
+    Expect(keys).toEqual(['c', 'b']);
   }
 
   @Test()
@@ -60,6 +60,6 @@ export class BumpTests {
       vals.push(val);
     }
 
-    Expect(vals).toEqual([2, 3]);
+    Expect(vals).toEqual([3, 2]);
   }
 }

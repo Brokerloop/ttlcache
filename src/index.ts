@@ -28,7 +28,7 @@ export class TTLCache<K = any, V = any> {
   private oldest: Entry<K, V>|null = null;
   private newest: Entry<K, V>|null = null;
   private max: number;
-  private readonly cache = new Map<K, Entry<K, V>>(); // preserves insert order
+  private readonly cache = new Map<K, Entry<K, V>>();
   private readonly ttl: number;
 
   constructor(opt?: Partial<Opts>) {
@@ -80,38 +80,35 @@ export class TTLCache<K = any, V = any> {
   get(key: K) {
     const entry = this.cache.get(key);
 
-    if (entry) {
-      if (TTLCache.isExpired(entry)) {
-        this.evictEntry(entry);
+    if (!entry) {
+      return undefined;
+    }
+    else if (TTLCache.isExpired(entry)) {
+      this.evictEntry(entry);
 
-        return undefined;
-      }
-      else {
-        this.bumpAge(entry);
-
-        return entry.val;
-      }
+      return undefined;
     }
     else {
-      return undefined;
+      this.bumpAge(entry);
+
+      return entry.val;
     }
   }
 
   set(key: K, val: V) {
-    const prev = this.cache.get(key);
+    const entry = this.cache.get(key);
 
-    if (prev) {
-      prev.val = val;
-      prev.exp = Date.now() + this.ttl; // refresh
+    if (entry) {
+      entry.val = val;
 
-      this.bumpAge(prev);
+      this.bumpAge(entry);
     }
     else {
       if (this.cache.size === this.max) {
         this.evictEntry(this.oldest!);
       }
 
-      this.bumpAge({
+      this.insertNew({
         key,
         val,
         exp:  Date.now() + this.ttl,
@@ -176,74 +173,89 @@ export class TTLCache<K = any, V = any> {
     this.newest = null;
   }
 
-  private bumpAge(entry: Entry<K, V>) {
-    // reset insertion order
-    this.cache.delete(entry.key); // maybe noop
+  private insertNew(entry: Entry<K, V>) {
     this.cache.set(entry.key, entry);
 
-    if (entry === this.newest) {
-      // already newest or only entry
-      return;
-    }
-    else if (!this.oldest || !this.newest) {
-      // set only entry
+    if (!this.oldest || !this.newest) {
       this.oldest = entry;
       this.newest = entry;
     }
     else {
-      if (entry === this.oldest) {
-        entry.next!.prev = null;
-
-        this.oldest = entry.next;
-      }
-
       entry.prev = this.newest;
-      entry.next = null;
 
       this.newest.next = entry;
       this.newest = entry;
     }
   }
 
+  private bumpAge(entry: Entry<K, V>) {
+    entry.exp = Date.now() + this.ttl;
+
+    if (!entry.next) {
+      // already newest
+      return;
+    }
+
+    if (entry.prev) {
+      entry.prev.next = entry.next;
+    }
+    else {
+      this.oldest = entry.next;
+    }
+
+    entry.next.prev = entry.prev; // maybe null
+
+    entry.prev = this.newest;
+    entry.next = null;
+
+    this.newest!.next = entry;
+    this.newest = entry;
+  }
+
   private evictEntry(entry: Entry<K, V>) {
     this.cache.delete(entry.key);
 
-    this.evict.emit({ key: entry.key, val: entry.val });
-
-    if (!entry.prev && !entry.next) {
-      // only entry
-      this.oldest = null;
-      this.newest = null;
-
-      this.empty.emit();
+    if (this.oldest === entry) {
+      this.oldest = entry.next; // maybe null
     }
-    else {
-      if (entry.prev) {
-        entry.prev.next = entry.next; // maybe null
 
-        if (entry === this.newest) {
-          this.newest = entry.prev;
-        }
-      }
+    if (this.newest === entry) {
+      this.newest = entry.prev; // maybe null
+    }
 
-      if (entry.next) {
-        entry.next.prev = entry.prev; // maybe null
+    if (entry.prev) {
+      entry.prev.next = entry.next; // maybe null
+    }
 
-        if (entry === this.oldest) {
-          this.oldest = entry.next;
-        }
-      }
+    if (entry.next) {
+      entry.next.prev = entry.prev; // maybe null
+    }
+
+    this.evict.emit({
+      key: entry.key,
+      val: entry.val
+    });
+
+    if (this.cache.size === 0) {
+      this.empty.emit();
     }
   }
 
   private *getEvictingIterator() {
-    for (const entry of this.cache.values()) {
+    let entry = this.newest;
+
+    while (entry) {
       if (TTLCache.isExpired(entry)) {
         this.evictEntry(entry);
+
+        entry = entry.prev;
+
         continue;
       }
 
       yield entry;
+
+      entry = entry.prev;
     }
   }
 
