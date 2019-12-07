@@ -128,12 +128,7 @@ export class TTLCache<K = any, V = any> {
     if (entry) {
       this.evictEntry(entry, false);
 
-      const view: EntryView<K, V> = {
-        key: entry.key,
-        val: entry.val
-      };
-
-      return view;
+      return entry.val;
     }
 
     return undefined;

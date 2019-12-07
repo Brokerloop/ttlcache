@@ -136,7 +136,7 @@ export class GetSetTests {
 
     cache.set('a', 123);
 
-    Expect(cache.delete('a')).toEqual({ key: 'a', val: 123 });
+    Expect(cache.delete('a')).toEqual(123);
 
     Expect(cache.delete('a')).toBe(undefined);
   }

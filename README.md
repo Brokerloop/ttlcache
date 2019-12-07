@@ -77,8 +77,8 @@ Finds an entry by the given `key`. Returns `undefined` if not found or if the en
 #### `set(key: K, val: V): void`
 Creates an entry at `key`, evicting the cache's LRU entry if the cache is full. If an expired entry already exists at `key`, its LRU-age is refreshed but it is not evicted.
 
-#### `delete(key: K): { key: K, val: V }|undefined`
-Finds and removes an entry at `key`. Returns the entry `{ key: K, val: V }` if it was removed, or `undefined` otherwise.
+#### `delete(key: K): V|undefined`
+Finds and removes an entry at `key`. Returns the entry value if it was removed, or `undefined` otherwise.
 
 #### `cleanup(): void`
 Evicts all expired entries in the cache.
