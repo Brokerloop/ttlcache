@@ -1,15 +1,18 @@
 import { TestFixture, Test, Expect } from 'alsatian';
+import { MockClock } from './config';
 import { TTLCache } from '../src';
 
 @TestFixture()
 export class UtilTests {
   @Test()
-  async iterateValidEntries() {
-    const cache = new TTLCache({ ttl: 50 });
+  iterateValidEntries() {
+    const clock = new MockClock();
+
+    const cache = new TTLCache({ ttl: 50, clock });
 
     cache.set('a', 123);
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    clock.pass(100);
 
     cache.set('b', 123);
     cache.set('c', 123);
@@ -24,12 +27,14 @@ export class UtilTests {
   }
 
   @Test()
-  async iterateValidKeys() {
-    const cache = new TTLCache({ ttl: 50 });
+  iterateValidKeys() {
+    const clock = new MockClock();
+
+    const cache = new TTLCache({ ttl: 50, clock });
 
     cache.set('a', 123);
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    clock.pass(100);
 
     cache.set('b', 123);
     cache.set('c', 123);
@@ -44,12 +49,14 @@ export class UtilTests {
   }
 
   @Test()
-  async iterateValidValues() {
-    const cache = new TTLCache({ ttl: 50 });
+  iterateValidValues() {
+    const clock = new MockClock();
+
+    const cache = new TTLCache({ ttl: 50, clock });
 
     cache.set('a', 1);
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    clock.pass(100);
 
     cache.set('b', 2);
     cache.set('c', 3);

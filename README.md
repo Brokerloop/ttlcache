@@ -22,13 +22,13 @@ npm install @brokerloop/ttlcache --save
 ```ts
 import { TTLCache } from '@brokerloop/ttlcache';
 
-const cache = new TTLCache<string, number>({ ttl: 5000, max: 10 });
+const cache = new TTLCache<string, number>({ ttl: 5000, max: 10, clock: Date });
 
 cache.set('a', 123);
 cache.has('a');      // true
 cache.get('a');      // 123
 cache.get('b');      // undefined
-cache.delete('a');
+cache.delete('a');   // 123
 
 cache.empty.on(() => {
   // cache is empty
@@ -47,9 +47,31 @@ cache.evict.on(({ key, val }) => {
 
 ```js
 {
-  ttl: 1000,    // default entry TTL in ms
-  max: Infinity // max number of entries in cache
+  ttl:   1000,         // default entry TTL in ms
+  max:   Infinity,     // max number of entries in cache
+  clock: Date as Clock // cache-relative clock
 }
+```
+
+#### Clock
+By default, the cache uses `Date.now()` to expire entries. This works while the system date and time do not change. You can provide your own implementation of the `Clock` interface:
+```ts
+interface Clock {
+  now:         () => number; // must be monotonically increasing
+  [_: string]: any;
+}
+```
+```ts
+const clock = (() => {
+  let time = 0;
+
+  const clock: Clock = {
+    now:  () => time,
+    pass: (ms: number) => time += ms
+  };
+
+  return clock;
+})();
 ```
 
 ### Properties
@@ -65,7 +87,7 @@ Returns an iterator over valid cache entry keys, from newest to oldest. Expired 
 #### `values(): Iterator<V>`
 Returns an iterator over valid cache entry values, from newest to oldest. Expired entries are evicted as they are iterated over.
 
-#### `entries(): Iterator<Entry<K, V>>`
+#### `entries(): Iterator<{ key: K, val: V }>`
 Returns an iterator over valid cache entries, from newest to oldest. Expired entries are evicted as they are iterated over.
 
 #### `has(key: K): boolean`

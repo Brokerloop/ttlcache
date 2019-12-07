@@ -1,4 +1,5 @@
 import { TestFixture, Test, Expect } from 'alsatian';
+import { MockClock } from './config';
 import { TTLCache } from '../src';
 
 @TestFixture()
@@ -48,13 +49,15 @@ export class EvictTests {
   }
 
   @Test()
-  async cleanupExpiredKeys() {
-    const cache = new TTLCache({ ttl: 100 });
+  cleanupExpiredKeys() {
+    const clock = new MockClock();
+
+    const cache = new TTLCache({ ttl: 100, clock });
 
     // set first key
     cache.set('a', 123);
 
-    await new Promise(resolve => setTimeout(resolve, 50));
+    clock.pass(50);
 
     // set second key
     cache.set('b', 123);
@@ -65,7 +68,7 @@ export class EvictTests {
     Expect(Array.from(cache.keys())).toEqual(['b', 'a']);
 
     // expire first key
-    await new Promise(resolve => setTimeout(resolve, 75));
+    clock.pass(75);
 
     Expect(cache.size).toEqual(2);
 
@@ -75,7 +78,7 @@ export class EvictTests {
     Expect(Array.from(cache.keys())).toEqual(['b']);
 
     // expire second key
-    await new Promise(resolve => setTimeout(resolve, 50));
+    clock.pass(50);
 
     Expect(cache.size).toEqual(1);
     Expect(Array.from(cache.keys())).toEqual([]);

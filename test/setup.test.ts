@@ -1,5 +1,6 @@
 import { TestFixture, Test, TestCase, Expect } from 'alsatian';
-import { TTLCache } from '../src';
+import { TTLCache, Clock } from '../src';
+import { MockClock } from './config';
 
 type TTL = number|undefined;
 type MAX = number|undefined;
@@ -57,5 +58,20 @@ export class SetupTests {
   @TestCase(-Infinity)
   maxFail(max: MAX) {
     Expect(() => new TTLCache({ max })).toThrow();
+  }
+
+  @Test()
+  @TestCase(Date)
+  @TestCase({ now: () => Date.now() })
+  @TestCase(new MockClock())
+  clockOk(clock: Clock) {
+    Expect(() => new TTLCache({ clock })).not.toThrow();
+  }
+
+  @Test()
+  @TestCase(null)
+  @TestCase(undefined)
+  clockFail(clock: Clock) {
+    Expect(() => new TTLCache({ clock })).toThrow();
   }
 }

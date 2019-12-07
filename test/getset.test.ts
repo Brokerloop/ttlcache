@@ -1,4 +1,5 @@
 import { TestFixture, Test, TestCase, Expect } from 'alsatian';
+import { MockClock } from './config';
 import { TTLCache } from '../src';
 
 type TTL = number|undefined;
@@ -19,12 +20,14 @@ export class GetSetTests {
   @Test()
   @TestCase(50, 0)
   @TestCase(100, 50)
-  async getValidEntry(ttl: TTL, waitms: number) {
-    const cache = new TTLCache({ ttl });
+  getValidEntry(ttl: TTL, waitms: number) {
+    const clock = new MockClock();
+
+    const cache = new TTLCache({ ttl, clock });
 
     cache.set('a', 123);
 
-    await new Promise(resolve => setTimeout(resolve, waitms));
+    clock.pass(waitms);
 
     Expect(cache.get('a')).toBe(123);
   }
@@ -32,12 +35,14 @@ export class GetSetTests {
   @Test()
   @TestCase(0, 50)
   @TestCase(50, 100)
-  async getExpiredEntry(ttl: TTL, waitms: number) {
-    const cache = new TTLCache({ ttl });
+  getExpiredEntry(ttl: TTL, waitms: number) {
+    const clock = new MockClock();
+
+    const cache = new TTLCache({ ttl, clock });
 
     cache.set('a', 123);
 
-    await new Promise(resolve => setTimeout(resolve, waitms));
+    clock.pass(waitms);
 
     Expect(cache.get('a')).toBe(undefined);
   }

@@ -13,9 +13,15 @@ export interface EntryView<K, V> {
   val: V;
 }
 
+export interface Clock {
+  now:         () => number; // must be monotonically increasing
+  [_: string]: any;
+}
+
 const def = {
-  ttl: 1000,    // default entry TTL in ms
-  max: Infinity // max number of entries in cache
+  ttl:   1000,         // default entry TTL in ms
+  max:   Infinity,     // max number of entries in cache
+  clock: Date as Clock // cache-relative clock
 };
 
 export type Opts = typeof def;
@@ -25,14 +31,15 @@ export class TTLCache<K = any, V = any> {
   readonly full  = new Signal();
   readonly evict = new Signal<EntryView<K, V>>();
 
+  private readonly cache = new Map<K, Entry<K, V>>();
   private oldest: Entry<K, V>|null = null;
   private newest: Entry<K, V>|null = null;
-  private max: number;
-  private readonly cache = new Map<K, Entry<K, V>>();
   private readonly ttl: number;
+  private max: number;
+  private readonly clock: Clock;
 
   constructor(opt?: Partial<Opts>) {
-    const { ttl, max } = { ...def, ...opt };
+    const { ttl, max, clock } = { ...def, ...opt };
 
     if (ttl !== 0 && !(ttl > 0)) {
       throw new Error(`invalid TTL (${ttl})`);
@@ -40,9 +47,13 @@ export class TTLCache<K = any, V = any> {
     else if (!(max > 1)) {
       throw new Error(`invalid max (${max})`);
     }
+    else if (!clock || typeof (clock.now as any) !== 'function') {
+      throw new Error('invalid clock');
+    }
 
-    this.ttl = ttl;
-    this.max = max;
+    this.ttl   = ttl;
+    this.max   = max;
+    this.clock = clock;
   }
 
   get size() {
@@ -83,7 +94,7 @@ export class TTLCache<K = any, V = any> {
     if (!entry) {
       return undefined;
     }
-    else if (TTLCache.isExpired(entry)) {
+    else if (this.isExpired(entry)) {
       this.evictEntry(entry, true);
 
       return undefined;
@@ -111,7 +122,7 @@ export class TTLCache<K = any, V = any> {
       this.insertNew({
         key,
         val,
-        exp:  Date.now() + this.ttl,
+        exp:  this.clock.now() + this.ttl,
         prev: null,
         next: null
       });
@@ -136,7 +147,7 @@ export class TTLCache<K = any, V = any> {
 
   cleanup() {
     while (this.oldest) {
-      if (TTLCache.isExpired(this.oldest)) {
+      if (this.isExpired(this.oldest)) {
         this.evictEntry(this.oldest, true);
       }
       else {
@@ -189,7 +200,7 @@ export class TTLCache<K = any, V = any> {
   }
 
   private bumpAge(entry: Entry<K, V>) {
-    entry.exp = Date.now() + this.ttl;
+    entry.exp = this.clock.now() + this.ttl;
 
     if (!entry.next) {
       // already newest
@@ -245,7 +256,7 @@ export class TTLCache<K = any, V = any> {
     let entry = this.newest;
 
     while (entry) {
-      if (TTLCache.isExpired(entry)) {
+      if (this.isExpired(entry)) {
         this.evictEntry(entry, true);
 
         entry = entry.prev;
@@ -259,9 +270,9 @@ export class TTLCache<K = any, V = any> {
     }
   }
 
-  private static isExpired<K, V>(entry: Entry<K, V>) {
+  private isExpired<K, V>(entry: Entry<K, V>) {
     // entry is valid during same ms
     // NOTE: flaky async results with very small TTL
-    return entry.exp < Date.now();
+    return entry.exp < this.clock.now();
   }
 }
