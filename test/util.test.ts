@@ -12,7 +12,7 @@ export class UtilTests {
 
     cache.set('a', 123);
 
-    clock.pass(100);
+    clock.pass(100); // expire first key
 
     cache.set('b', 123);
     cache.set('c', 123);
@@ -34,7 +34,7 @@ export class UtilTests {
 
     cache.set('a', 123);
 
-    clock.pass(100);
+    clock.pass(100); // expire first key
 
     cache.set('b', 123);
     cache.set('c', 123);
@@ -56,7 +56,7 @@ export class UtilTests {
 
     cache.set('a', 1);
 
-    clock.pass(100);
+    clock.pass(100); // expire first key
 
     cache.set('b', 2);
     cache.set('c', 3);

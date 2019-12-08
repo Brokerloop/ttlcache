@@ -114,36 +114,37 @@ export class TTLCache<K = any, V = any> {
       entry.val = val;
 
       this.bumpAge(entry);
+
+      return;
     }
-    else {
-      if (this.cache.size === this.max) {
-        this.evictEntry(this.oldest!, true);
-      }
 
-      this.insertNew({
-        key,
-        val,
-        exp:  this.clock.now() + this.ttl,
-        prev: null,
-        next: null
-      });
+    if (this.cache.size === this.max) {
+      this.evictEntry(this.oldest!, true);
+    }
 
-      if (this.cache.size === this.max) {
-        this.full.emit();
-      }
+    this.insertNew({
+      key,
+      val,
+      exp:  this.clock.now() + this.ttl,
+      prev: null,
+      next: null
+    });
+
+    if (this.cache.size === this.max) {
+      this.full.emit();
     }
   }
 
   delete(key: K) {
     const entry = this.cache.get(key);
 
-    if (entry) {
-      this.evictEntry(entry, false);
-
-      return entry.val;
+    if (!entry) {
+      return undefined;
     }
 
-    return undefined;
+    this.evictEntry(entry, false);
+
+    return entry.val;
   }
 
   cleanup() {
@@ -273,7 +274,6 @@ export class TTLCache<K = any, V = any> {
 
   private isExpired<K, V>(entry: Entry<K, V>) {
     // entry is valid during same ms
-    // NOTE: flaky async results with very small TTL
     return entry.exp < this.clock.now();
   }
 }
