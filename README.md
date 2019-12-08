@@ -22,7 +22,11 @@ npm install @brokerloop/ttlcache --save
 ```ts
 import { TTLCache } from '@brokerloop/ttlcache';
 
-const cache = new TTLCache<string, number>({ ttl: 5000, max: 10, clock: Date });
+const cache = new TTLCache<string, number>({
+  ttl:   5000,
+  max:   10,
+  clock: Date
+});
 
 cache.set('a', 123);
 cache.has('a');      // true
@@ -43,7 +47,7 @@ cache.evict.on(({ key, val }) => {
 });
 ```
 
-### Default Options
+### Options
 
 ```js
 {
@@ -53,8 +57,8 @@ cache.evict.on(({ key, val }) => {
 }
 ```
 
-#### Clock
-By default, the cache uses `Date.now()` to expire entries. This works while the system date and time do not change. You can provide your own implementation of the `Clock` interface:
+#### `clock`
+By default, the cache uses `Date.now()` to expire entries. This works while the system date/time do not change. You can provide your own implementation of the `Clock` interface:
 ```ts
 interface Clock {
   now:         () => number; // must be monotonically increasing
@@ -103,13 +107,13 @@ Creates an entry at `key`, evicting the cache's LRU entry if the cache is full. 
 Finds and removes an entry at `key`. Returns the entry value if it was removed, or `undefined` otherwise.
 
 #### `cleanup(): void`
-Evicts all expired entries in the cache.
+Evicts all expired entries from the cache.
 
 #### `resize(max: number): void`
 Resizes the cache to the given `max` size. When growing, no entries are evicted. When shrinking, entries are evicted as needed, by oldest LRU-age, until the new `max` is reached.
 
 #### `clear(): void`
-Clears the cache, removing all entries, without firing signals.
+Empties the cache, removing all entries, without firing signals.
 
 ### Events (via [Signal](https://github.com/soncodi/signal))
 

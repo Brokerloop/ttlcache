@@ -34,6 +34,7 @@ export class TTLCache<K = any, V = any> {
   private readonly cache = new Map<K, Entry<K, V>>();
   private oldest: Entry<K, V>|null = null;
   private newest: Entry<K, V>|null = null;
+
   private readonly ttl: number;
   private max: number;
   private readonly clock: Clock;
