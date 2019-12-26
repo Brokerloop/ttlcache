@@ -7,7 +7,7 @@ type TTL = number|undefined;
 @TestFixture()
 export class GetSetTests {
   @Test()
-  // @TestCase(0) // flaky
+  @TestCase(0)
   @TestCase(100)
   getEntry(ttl: TTL) {
     const cache = new TTLCache({ ttl });
@@ -18,6 +18,7 @@ export class GetSetTests {
   }
 
   @Test()
+  @TestCase(0, 0)
   @TestCase(50, 0)
   @TestCase(100, 50)
   getValidEntry(ttl: TTL, waitms: number) {
@@ -33,6 +34,7 @@ export class GetSetTests {
   }
 
   @Test()
+  @TestCase(0, 1)
   @TestCase(0, 50)
   @TestCase(50, 100)
   getExpiredEntry(ttl: TTL, waitms: number) {

@@ -1,6 +1,6 @@
 import { TestFixture, Test, TestCase, Expect } from 'alsatian';
-import { TTLCache, Clock } from '../src';
 import { MockClock } from './config';
+import { TTLCache, Clock } from '../src';
 
 type TTL = number|undefined;
 type MAX = number|undefined;

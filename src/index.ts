@@ -63,19 +63,19 @@ export class TTLCache<K = any, V = any> {
   }
 
   *keys() {
-    for (const entry of this.getEvictingIterator()) {
+    for (const entry of this.getIterator()) {
       yield entry.key;
     }
   }
 
   *values() {
-    for (const entry of this.getEvictingIterator()) {
+    for (const entry of this.getIterator()) {
       yield entry.val;
     }
   }
 
   *entries() {
-    for (const entry of this.getEvictingIterator()) {
+    for (const entry of this.getIterator()) {
       const view: EntryView<K, V> = {
         key: entry.key,
         val: entry.val
@@ -147,19 +147,13 @@ export class TTLCache<K = any, V = any> {
     return entry.val;
   }
 
-  cleanup() {
-    while (this.oldest) {
-      if (this.isExpired(this.oldest)) {
-        this.evictEntry(this.oldest, true);
-      }
-      else {
-        // remaining entries are newer
-        break;
-      }
+  cleanup(opts = { emit: true }) {
+    while (this.oldest && this.isExpired(this.oldest)) {
+      this.evictEntry(this.oldest, opts.emit);
     }
   }
 
-  resize(max: number) {
+  resize(max: number, opts = { emit: true }) {
     if (!(max > 1)) {
       throw new Error(`invalid max (${max})`);
     }
@@ -170,7 +164,7 @@ export class TTLCache<K = any, V = any> {
       let drop = shrinkBy - (this.max - this.cache.size);
 
       while (drop > 0) {
-        this.evictEntry(this.oldest!, true);
+        this.evictEntry(this.oldest!, opts.emit);
 
         drop--;
       }
@@ -254,18 +248,10 @@ export class TTLCache<K = any, V = any> {
     }
   }
 
-  private *getEvictingIterator() {
+  private *getIterator() {
     let entry = this.newest;
 
-    while (entry) {
-      if (this.isExpired(entry)) {
-        this.evictEntry(entry, true);
-
-        entry = entry.prev;
-
-        continue;
-      }
-
+    while (entry && !this.isExpired(entry)) {
       yield entry;
 
       entry = entry.prev;

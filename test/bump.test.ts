@@ -11,11 +11,11 @@ export class BumpTests {
     cache.set('b', 123);
     cache.set('c', 123);
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
 
     cache.get('a'); // bump
 
-    Expect(Array.from(cache.keys())).toEqual(['a', 'c', 'b']);
+    Expect([...cache.keys()]).toEqual(['a', 'c', 'b']);
   }
 
   @Test()
@@ -26,11 +26,11 @@ export class BumpTests {
     cache.set('b', 123);
     cache.set('c', 123);
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
 
     cache.get('c'); // bump
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
   }
 
   @Test()
@@ -41,11 +41,11 @@ export class BumpTests {
     cache.set('b', 123);
     cache.set('c', 123);
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
 
     cache.get('b'); // bump
 
-    Expect(Array.from(cache.keys())).toEqual(['b', 'c', 'a']);
+    Expect([...cache.keys()]).toEqual(['b', 'c', 'a']);
   }
 
   @Test()
@@ -56,11 +56,11 @@ export class BumpTests {
     cache.set('b', 123);
     cache.set('c', 123);
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
 
     cache.set('a', 234); // bump
 
-    Expect(Array.from(cache.keys())).toEqual(['a', 'c', 'b']);
+    Expect([...cache.keys()]).toEqual(['a', 'c', 'b']);
   }
 
   @Test()
@@ -71,11 +71,11 @@ export class BumpTests {
     cache.set('b', 123);
     cache.set('c', 123);
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
 
     cache.set('c', 234); // bump
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
   }
 
   @Test()
@@ -86,10 +86,10 @@ export class BumpTests {
     cache.set('b', 123);
     cache.set('c', 123);
 
-    Expect(Array.from(cache.keys())).toEqual(['c', 'b', 'a']);
+    Expect([...cache.keys()]).toEqual(['c', 'b', 'a']);
 
     cache.set('b', 234); // bump
 
-    Expect(Array.from(cache.keys())).toEqual(['b', 'c', 'a']);
+    Expect([...cache.keys()]).toEqual(['b', 'c', 'a']);
   }
 }

@@ -86,13 +86,13 @@ Returns the size of the cache, including expired entries. Run `cleanup()` first 
 ### Methods
 
 #### `keys(): Iterator<K>`
-Returns an iterator over valid cache entry keys, from newest to oldest. Expired entries are evicted as they are iterated over.
+Returns an iterator over valid cache entry keys, from newest to oldest. Expired entries are not evicted.
 
 #### `values(): Iterator<V>`
-Returns an iterator over valid cache entry values, from newest to oldest. Expired entries are evicted as they are iterated over.
+Returns an iterator over valid cache entry values, from newest to oldest. Expired entries are not evicted.
 
 #### `entries(): Iterator<{ key: K, val: V }>`
-Returns an iterator over valid cache entries, from newest to oldest. Expired entries are evicted as they are iterated over.
+Returns an iterator over valid cache entries, from newest to oldest. Expired entries are not evicted.
 
 #### `has(key: K): boolean`
 Checks if `key` exists in the cache. Does not evict the entry if expired.
@@ -106,11 +106,11 @@ Creates an entry at `key`, evicting the cache's LRU entry if the cache is full. 
 #### `delete(key: K): V|undefined`
 Finds and removes an entry at `key`. Returns the entry value if it was removed, or `undefined` otherwise.
 
-#### `cleanup(): void`
-Evicts all expired entries from the cache.
+#### `cleanup(opts = { emit: true }): void`
+Evicts all expired entries from the cache. Pass `emit: false` to not emit `evict` events.
 
-#### `resize(max: number): void`
-Resizes the cache to the given `max` size. When growing, no entries are evicted. When shrinking, entries are evicted as needed, by oldest LRU-age, until the new `max` is reached.
+#### `resize(max: number, opts = { emit: true }): void`
+Resizes the cache to the given `max` size. When growing, no entries are evicted. When shrinking, entries are evicted as needed, by oldest LRU-age, until the new `max` is reached. Pass `emit: false` to not emit `evict` events.
 
 #### `clear(): void`
 Empties the cache, removing all entries, without firing signals.
