@@ -1,3 +1,4 @@
+import { SpyOn } from 'alsatian';
 import { Clock } from '../src';
 
 export class MockClock implements Clock {
@@ -11,3 +12,10 @@ export class MockClock implements Clock {
     this.time += time;
   }
 }
+
+export const makeSpy = <T>() => {
+  const spy = { on(_arg: T) { /**/ } };
+  SpyOn(spy, 'on');
+
+  return spy;
+};
