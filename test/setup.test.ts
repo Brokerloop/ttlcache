@@ -8,6 +8,13 @@ type MAX = number|undefined;
 @TestFixture()
 export class SetupTests {
   @Test()
+  @TestCase(undefined)
+  @TestCase({})
+  noOpts(opts: undefined|{}) {
+    Expect(() => new TTLCache(opts)).not.toThrow();
+  }
+
+  @Test()
   @TestCase(0)
   @TestCase(1)
   @TestCase(10)
