@@ -41,8 +41,8 @@
     "@soncodi/signal": "~2.0.6"
   },
   "devDependencies": {
-    "alsatian": "~3.1.0",
+    "alsatian": "~3.2.1",
     "nyc": "~15.0.0",
-    "typescript": "~3.7.4"
+    "typescript": "~3.8.2"
   }
 }
