@@ -1,6 +1,6 @@
 import { TestFixture, Test, TestCase, Expect } from 'alsatian';
 import { MockClock } from './config';
-import { TTLCache, Clock } from '../src';
+import { TTLCache, Clock, MIN_SIZE } from '../src';
 
 type TTL = number|undefined;
 type MAX = number|undefined;
@@ -34,6 +34,7 @@ export class SetupTests {
   }
 
   @Test()
+  @TestCase(MIN_SIZE)
   @TestCase(5)
   @TestCase(10)
   @TestCase(Infinity)
@@ -52,7 +53,6 @@ export class SetupTests {
   @TestCase([0, 1])
   @TestCase(() => { /**/ })
   @TestCase(0)
-  @TestCase(1)
   @TestCase(-1)
   @TestCase(-10)
   @TestCase(-Infinity)

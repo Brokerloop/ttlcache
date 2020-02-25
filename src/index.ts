@@ -18,6 +18,8 @@ export interface Clock {
   [_: string]: any;
 }
 
+export const MIN_SIZE = 1;
+
 const def = {
   ttl:   1000,         // default entry TTL in ms
   max:   Infinity,     // max number of entries in cache
@@ -45,7 +47,7 @@ export class TTLCache<K = any, V = any> {
     if (ttl !== 0 && !(ttl > 0)) {
       throw new Error(`invalid TTL (${ttl})`);
     }
-    else if (!(max > 1)) {
+    else if (!(max >= MIN_SIZE)) {
       throw new Error(`invalid max (${max})`);
     }
     else if (!clock || typeof (clock.now as any) !== 'function') {
@@ -154,7 +156,7 @@ export class TTLCache<K = any, V = any> {
   }
 
   resize(max: number, opts = { emit: true }) {
-    if (!(max > 1)) {
+    if (!(max >= MIN_SIZE)) {
       throw new Error(`invalid max (${max})`);
     }
 
