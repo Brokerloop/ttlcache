@@ -98,7 +98,16 @@ export class TTLCache<K = any, V = any> {
       return undefined;
     }
     else if (this.isExpired(entry)) {
-      this.evictEntry(entry, true);
+      const unlinked = this.unlink(entry);
+
+      this.evict.emit({
+        key: unlinked.key,
+        val: unlinked.val
+      });
+
+      if (this.cache.size === 0) {
+        this.empty.emit();
+      }
 
       return undefined;
     }
@@ -110,27 +119,43 @@ export class TTLCache<K = any, V = any> {
   }
 
   set(key: K, val: V) {
-    const entry = this.cache.get(key);
+    const existing = this.cache.get(key);
 
-    if (entry) {
-      entry.val = val;
+    if (existing) {
+      existing.val = val;
 
-      this.bumpAge(entry);
+      this.bumpAge(existing);
 
       return;
     }
 
-    if (this.cache.size === this.max) {
-      this.evictEntry(this.oldest!, true);
-    }
-
-    this.insertNew({
+    const entry: Entry<K, V> = {
       key,
       val,
       exp:  this.clock.now() + this.ttl,
-      prev: null,
+      prev: this.newest, // maybe null
       next: null
-    });
+    };
+
+    this.cache.set(entry.key, entry);
+
+    if (this.newest) {
+      this.newest.next = entry;
+    }
+    else {
+      this.oldest = entry;
+    }
+
+    this.newest = entry;
+
+    if (this.oldest && this.cache.size > this.max) {
+      const unlinked = this.unlink(this.oldest);
+
+      this.evict.emit({
+        key: unlinked.key,
+        val: unlinked.val
+      });
+    }
 
     if (this.cache.size === this.max) {
       this.full.emit();
@@ -144,14 +169,29 @@ export class TTLCache<K = any, V = any> {
       return undefined;
     }
 
-    this.evictEntry(entry, false);
+    const unlinked = this.unlink(entry);
 
-    return entry.val;
+    if (this.cache.size === 0) {
+      this.empty.emit();
+    }
+
+    return unlinked.val;
   }
 
   cleanup(opts = { emit: true }) {
     while (this.oldest && this.isExpired(this.oldest)) {
-      this.evictEntry(this.oldest, opts.emit);
+      const unlinked = this.unlink(this.oldest);
+
+      if (opts.emit) {
+        this.evict.emit({
+          key: unlinked.key,
+          val: unlinked.val
+        });
+      }
+    }
+
+    if (this.cache.size === 0) {
+      this.empty.emit();
     }
   }
 
@@ -159,20 +199,22 @@ export class TTLCache<K = any, V = any> {
     if (!(max >= MIN_SIZE)) {
       throw new Error(`invalid max (${max})`);
     }
-
-    const shrinkBy = this.max - max;
-
-    if (shrinkBy > 0) {
-      let drop = shrinkBy - (this.max - this.cache.size);
-
-      while (drop > 0) {
-        this.evictEntry(this.oldest!, opts.emit);
-
-        drop--;
-      }
+    else if (max === this.max) {
+      return;
     }
 
     this.max = max;
+
+    while (this.oldest && this.cache.size > this.max) {
+      const unlinked = this.unlink(this.oldest);
+
+      if (opts.emit) {
+        this.evict.emit({
+          key: unlinked.key,
+          val: unlinked.val
+        });
+      }
+    }
   }
 
   clear() {
@@ -180,21 +222,6 @@ export class TTLCache<K = any, V = any> {
 
     this.oldest = null;
     this.newest = null;
-  }
-
-  private insertNew(entry: Entry<K, V>) {
-    this.cache.set(entry.key, entry);
-
-    if (this.newest) {
-      entry.prev = this.newest;
-
-      this.newest.next = entry;
-      this.newest = entry;
-    }
-    else {
-      this.oldest = entry;
-      this.newest = entry;
-    }
   }
 
   private bumpAge(entry: Entry<K, V>) {
@@ -221,7 +248,7 @@ export class TTLCache<K = any, V = any> {
     this.newest = entry;
   }
 
-  private evictEntry(entry: Entry<K, V>, emit: boolean) {
+  private unlink(entry: Entry<K, V>) {
     this.cache.delete(entry.key);
 
     if (entry.prev) {
@@ -238,25 +265,18 @@ export class TTLCache<K = any, V = any> {
       this.newest = entry.prev;     // maybe null
     }
 
-    if (emit) {
-      this.evict.emit({
-        key: entry.key,
-        val: entry.val
-      });
-    }
-
-    if (this.cache.size === 0) {
-      this.empty.emit();
-    }
+    return entry;
   }
 
   private *getIterator() {
-    let entry = this.newest;
+    let current = this.newest;
 
-    while (entry && !this.isExpired(entry)) {
+    while (current && !this.isExpired(current)) {
+      const entry = current;
+
+      current = current.prev;
+
       yield entry;
-
-      entry = entry.prev;
     }
   }
 
