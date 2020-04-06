@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "alsatian": "~3.2.1",
-    "nyc": "~15.0.0",
-    "typescript": "~3.8.2"
+    "nyc": "~15.0.1",
+    "typescript": "~3.8.3"
   }
 }
