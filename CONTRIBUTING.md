@@ -8,7 +8,7 @@ Thank you for your interest in contributing to this project! Please review the f
 
 ### Submissions
 
-* Open a discussion about major changes before sending PRs
+* Open a discussion about major changes, new dependencies, or API changes before sending PRs
 * Preserve existing code style
 * All code must pass the [linter](./tslint.json) and test suite
 * Rebase your changes on top of the `master` branch
