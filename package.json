@@ -1,6 +1,6 @@
 {
   "name": "@brokerloop/ttlcache",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "Evented LRU TTL cache for NodeJS and browsers.",
   "private": true,
   "author": "Alex Soncodi",
